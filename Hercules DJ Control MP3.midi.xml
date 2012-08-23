@@ -382,16 +382,24 @@
 				 </options>
 				</control>
 
+			<control>
+				<group>[Master]</group>
+				<key>HerculesMP3.joystick</key>
+				<status>0xb0</status>
+				<midino>0x38</midino>
+				<options>
+					<Script-Binding/>
+				</options>
+			 </control>
 				<control>
+					<group>[Master]</group>
+					<key>HerculesMP3.joystick</key>
 					<status>0xb0</status>
 					<midino>0x39</midino>
-					<group>[Playlist]</group>
-					<key>HerculesMP3.playlist</key>
 					<options>
-						<script-binding/>
-					</options>
+					 <Script-Binding/>
+				 </options>
 				</control>
-
 		</controls>
 
 		<outputs>
