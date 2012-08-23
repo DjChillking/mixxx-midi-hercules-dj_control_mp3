@@ -1,20 +1,24 @@
+// TODO
+// - LED blink functions
+// - autosync LED with autosync buttton & pitch
+// - test play LED function (buggy)
+
 function HerculesMP3 () {}
 
-HerculesMP3.ledOn = 0x7F;
-HerculesMP3.ledOff = 0x00;
-
+// defaults
 HerculesMP3.debug = false;
 HerculesMP3.scratchMode = false;
 HerculesMP3.decayLast = new Date().getTime();
 HerculesMP3.decayInterval = 300;
 HerculesMP3.decayRate = 1.5;
+HerculesMP3.leds = {};
 
 HerculesMP3.buttons123Modes = ["kill", "fx", "cue", "loop"];
-HerculesMP3.buttons123used = {"[Channel1]": false, "[Channel1]": false};
+HerculesMP3.buttons123used = {"[Channel1]": false, "[Channel2]": false};
 
-// TODO HerculesMP3 controls should be divided into groups, then signals
-// should directed to each group without thinking about specific controls
-// to allow for easy rebinding.
+// LED controller values
+HerculesMP3.ledOn = 0x7F;
+HerculesMP3.ledOff = 0x00;
 
 HerculesMP3.controls = {
 	"inputs": {
@@ -56,16 +60,13 @@ HerculesMP3.controls = {
 		0x04: { "channel": 2, "name": "sync", "type": "led" },
 		0x09: { "channel": 1, "name": "cue", "type": "led" },
 		0x03: { "channel": 2, "name": "cue", "type": "led" },
-		0x00: { "channel": 1, "name": "play blink", "type": "led" },
-		0x05: { "channel": 2, "name": "play blink", "type": "led" },
+		0x05: { "channel": 1, "name": "play blink", "type": "led" },
+		0x00: { "channel": 2, "name": "play blink", "type": "led" },
 		0x08: { "channel": 1, "name": "play", "type": "led" },
 		0x02: { "channel": 2, "name": "play", "type": "led" },
 		0x7E: { "channel": 1, "name": "pfl", "type": "led" },
 		0x7D: { "channel": 2, "name": "pfl", "type": "led" }
 	}
-};
-
-HerculesMP3.leds = {
 };
 
 // called when the device is opened & set up
@@ -114,9 +115,7 @@ HerculesMP3.getControl = function (io, channel, name) {
 	for (control in HerculesMP3.controls.inputs)
 	{
 		if (HerculesMP3.controls.inputs[control].channel == channel && HerculesMP3.controls.inputs[control].name == name)
-		{
 			return HerculesMP3.controls.inputs[control];
-		}
 	}
 
 	print ("HerculesMP3.getControl: Control not found: io=" + io + ": channel=" + channel + ": name=" + name);
@@ -126,48 +125,79 @@ HerculesMP3.setLeds = function (onOff) {
 	for (LED in HerculesMP3.leds)
 	{
 		HerculesMP3.setLed(LED,onOff);
-		// Seems that if midi messages are sent too quickly, leds don't behave
-		// as expected. A pause rectifies this.
+		// Seems that if midi messages are sent too quickly, leds don't behave as expected. A pause rectifies this.
 		HerculesMP3.pauseScript(10);
 	}
 };
 
 HerculesMP3.setLed = function (led, onOff) {
-	value = onOff=="on" ?  HerculesMP3.ledOn : HerculesMP3.ledOff;
-	if (HerculesMP3.debug) print ("HerculesMP3.setLed: Setting " + led + " led " + onOff);
-	if (HerculesMP3.debug) print ("HerculesMP3.setLed: midi.sendShortMsg(0xB0," + HerculesMP3.leds[led].toString(16) + "," + value + ")");
+	if (onOff=="on" || onOff==1 )
+		value = HerculesMP3.ledOn;
+	else 	if (onOff=="off" || onOff==0 )
+		value = HerculesMP3.ledOff;
+	else return;
+
+		if (HerculesMP3.debug) print ("HerculesMP3.setLed: Setting " + led + " led " + onOff);
+		if (HerculesMP3.debug) print ("HerculesMP3.setLed: midi.sendShortMsg(0xB0," + HerculesMP3.leds[led].toString(16) + "," + value + ")");
+
 	midi.sendShortMsg(0xB0,HerculesMP3.leds[led],value);
-	HerculesMP3.controls.outputs[HerculesMP3.leds[led]].isOn = onOff=="on" ? true : false;
+	//HerculesMP3.controls.outputs[HerculesMP3.leds[led]].isOn = onOff=="on" ? true : false;
+	HerculesMP3.controls.outputs[HerculesMP3.leds[led]].isOn = value;
 };
 
+////
+//HerculesMP3.blinkStart = function (LED) {
+//	HerculesMP3.timers[0] = engine.beginTimer(1000, "HerculesMP3.blinkLed("+LED+")",false);
+//	return;
+//}
+//
+//HerculesMP3.blinkStop = function (LED) {
+//	engine.stopTimer(HerculesMP3.blinkEnabled);
+//	HerculesMP3.setLed(LED, "on");
+//	return;
+//}
+//
+//HerculesMP3.blinkLed = function (LED) {
+//	print (HerculesMP3.controls.outputs[HerculesMP3.leds[LED]].isOn);
+//	//if (HerculesMP3.controls.outputs[HerculesMP3.leds[LED]].isOn == "on") HerculesMP3.setLed(LED, "off");
+//	//else HerculesMP3.setLed(LED, "on");
+//	return;
+//}
+
+
+// pause function for delay in script
 HerculesMP3.pauseScript = function(ms) {
 	startDate = new Date();
 	currentDate = null;
 	while(currentDate-startDate < ms) currentDate = new Date();
 };
 
+// increment function to set a value
 HerculesMP3.increment = function(group, control, value, min,max,step) {
+	if (HerculesMP3.debug) print ("[Debug] HerculesMP3.increment (" + group +", "+ control +", "+value +", "+status +")" );
+
 	currentValue = engine.getValue(group, control);
 	increment = (max-min)/step;
 	increment = (value <= 0x3F) ? increment : increment * -1;
 
-	//if (HerculesMP3.debug)
-	//{
-	//	print ("Current value of "+group+" " + control + " is :" + currentValue + ", min: " + min + ", max:" + max + ", step:" + step + ", increment: " + increment );
-	//	print ("HerculesMP3.pitch: value= " + newValue);
-	//}
-
 	newValue = currentValue + increment;
 	newValue = newValue > max ? max : newValue < min ? min : newValue;
-	print ("Changing " + group + " " + control + " value to " + ((newValue/max)*100) + "%, " + newValue );
 
 	if (newValue != currentValue)
 		engine.setValue(group, control, newValue);
 
+	print (group + " " + control + " set to " + ((newValue/max)*100) + "%");
+
+		if (HerculesMP3.debug) print ("Current value of "+group+" " + control + " is :" + currentValue + ", min: " + min + ", max:" + max + ", step:" + step + ", increment: " + increment );
+		if (HerculesMP3.debug) print ("HerculesMP3.pitch: value= " + newValue);
+
 	return;
 };
 
+//cue function
 HerculesMP3.cue = function (group, control, value, status) {
+	if (HerculesMP3.debug) print ("[Debug] HerculesMP3.cue (" + group +", "+ control +", "+value +", "+status +")" );
+
 	group = HerculesMP3.getGroup(control);
 
 	if ((engine.getValue(group, "duration") == 0) && (value))
@@ -176,82 +206,97 @@ HerculesMP3.cue = function (group, control, value, status) {
 		return;
 	}
 
-	// Down
-	if (value)
+	if (value) // button pressed
 	{
 		engine.setValue(group,"cue_default",1);
-		HerculesMP3.setLed(group + " cue", "on");
+		HerculesMP3.setLed(group + " cue", 1);
 	}
-	// Release
 	else
 	{
 		engine.setValue(group,"cue_default",0);
 	}
 };
 
+// play function
 HerculesMP3.play = function (group, control, value, status) {
-	// Only do stuff when play is pushed, not released.
-	if (value)
+	if (HerculesMP3.debug) print ("[Debug] HerculesMP3.play (" + group +", "+ control +", "+value +", "+status +")" );
+
+	if (value) // only when button is pressed, no action on release
 	{
+
 		group = HerculesMP3.getGroup(control);
 		if (engine.getValue(group, "duration") == 0)
 		{
 			print("No song on " + group);
 			return;
 		}
-		engine.setValue(group,"play", !engine.getValue(group,"play"));
+		playvalue = !engine.getValue(group,"play");
+		engine.setValue(group,"play", playvalue);
+
+		HerculesMP3.controls.inputs[control].isPlaying = playvalue;
+
+		// cue off, when simply playing
 		HerculesMP3.setLed(group + " cue", "off");
+
+		// play blink LED active, when song is paused
+		//HerculesMP3.setLed(group + " play blink", !playvalue);
+
+		// play LED active, when song is playing
+		HerculesMP3.setLed(group + " play", playvalue);
 	}
 };
 
+// pfl toggle function
 HerculesMP3.pfl = function (group, control, value, status) {
-	// Only do stuff when pushed, not released.
-	if (value)
+	if (HerculesMP3.debug) print ("[Debug] HerculesMP3.pfl (" + group +", "+ control +", "+value +", "+status +")" );
+
+	if (value) // only when button is pressed, no action on release
 	{
 		group = HerculesMP3.getGroup(control);
-		engine.setValue(group,"pfl", !engine.getValue(group,"pfl"));
-		print("Headphone toggled on " + group);
-		if (engine.getValue(group,"pfl"))
-		{
-			HerculesMP3.setLed(group + " pfl", "on");
-		}
-		else
-		{
-			HerculesMP3.setLed(group + " pfl", "off");
-		}
+		pfl = !engine.getValue(group,"pfl");
+		engine.setValue(group,"pfl", pfl);
+		HerculesMP3.setLed(group + " pfl", pfl);
+		print(group + "pfl set " + pfl);
 	}
 };
 
-HerculesMP3.bpm = function (group, control, value, status) {
-	group = HerculesMP3.getGroup(control);
-	engine.setValue(group,"rate",0);
-	HerculesMP3.setLed(group + " master tempo", "on");
-	print ("Resetting BPM rate on" + group);
+// reset bpm (master tempo)
+HerculesMP3.resetPitch = function (group, control, value, status) {
+	if (HerculesMP3.debug) print ("[Debug] HerculesMP3.resetpitch (" + group +", "+ control +", "+value +", "+status +")" );
+
+	if (value) // only when button is pressed, no action on release
+	{
+		group = HerculesMP3.getGroup(control);
+		engine.setValue(group,"rate",0);
+		HerculesMP3.setLed(group + " master tempo", "on");
+		print ("Resetting pitch on" + group);
+	}
 };
 
 HerculesMP3.loadSelectedTrack = function (group, control, value, status) {
-	// Only do stuff when pushed, not released.
-	if (value)
+	if (HerculesMP3.debug) print ("[Debug] HerculesMP3.loadSelectedTrack (" + group +", "+ control +", "+value +", "+status +")" );
+
+	if (value) // only when button is pressed, no action on release
 	{
 		group = HerculesMP3.getGroup(control);
 		engine.setValue(group, "LoadSelectedTrack", 1);
-		HerculesMP3.setLed(group + " cue", "on");
+		HerculesMP3.setLed(group + " cue", 1);
+		//HerculesMP3.setLed(group + " play blink", 1);
+		HerculesMP3.resetPitch (group, control, value, status);
+		print ("Track loaded on group " + group);
 	}
 };
 
+// button group changing / button  functions
 HerculesMP3.buttons123 = function (group, control, value, status) {
+	if (HerculesMP3.debug) print ("[Debug] HerculesMP3.buttons123 (" + group +", "+ control +", "+value +", "+status +")" );
+
 	group = HerculesMP3.getGroup(control);
 
-	// Button pressed.
-	if (value)
-	{
+	if (value) // Button pressed.
 		HerculesMP3.controls.inputs[control].isDown = true;
-	}
-	//Button released.
-	else
-	{
+	else //Button released.
 		HerculesMP3.controls.inputs[control].isDown = false;
-	}
 
 	mode = HerculesMP3.getControl("inputs", group, "fx select").mode;
 	mode = HerculesMP3.buttons123Modes[mode];
@@ -264,54 +309,55 @@ HerculesMP3.buttons123 = function (group, control, value, status) {
 				switch (HerculesMP3.controls.inputs[control].name)
 				{
 					case "fx 1":
-						engine.setValue(group, "filterLowKill", !engine.getValue(group, "filterLowKill"));
+						filter = "filterLowKill";
 						break;
 					case "fx 2":
-						engine.setValue(group, "filterMidKill", !engine.getValue(group, "filterMidKill"));
+						filter = "filterMidKill";
 						break;
 					case "fx 3":
-					engine.setValue(group, "filterHighKill", !engine.getValue(group, "filterHighKill"));
+						filter = "filterHighKill";
 					break;
 				}
+				filtervalue = !engine.getValue(group, filter);
+				engine.setValue(group, filter, filtervalue);
+				print (group + " "+ filter + " set to "+ filtervalue);
 			}
-			break; // End kill mode
+		break; // End kill mode
 
 		case "fx": // Fx mode
-		// Were only turning off the flanger if any of the 123 buttons are
-		// released, not pushed. This is so we can have any of the 123 buttons
-		// held down, then use the pitch pot to modify the effect settings
-			if (!value)
-			{ // Button released.
+		// because buttons also used together with pitch, we need to map these settings to button release without pitch beeing touched
+			if (!value) // Button released.
+			{
+				// if button was used with pitch
 				if (HerculesMP3.controls.inputs[control].used)
 				{
-					// Button was used to turn the pitch control into a modifier
-					// for the effect settings, so don't go on and turn the flanger
-					// on/off
 					HerculesMP3.controls.inputs[control].used = false;
 					return;
 				}
-				switch (HerculesMP3.controls.inputs[control].name)
+				else
 				{
-					case "fx 1":
-					case "fx 2":
-					case "fx 3":
-						engine.setValue(group, "flanger", !engine.getValue(group, "flanger"));
-						break;
+					switch (HerculesMP3.controls.inputs[control].name)
+					{
+						case "fx 1":
+						case "fx 2":
+						case "fx 3":
+							filter = "flanger";
+							break;
+					}
+					filtervalue = !engine.getValue(group, filter);
+					engine.setValue(group, filter, filtervalue);
+					print (group + " "+ filter + " set to "+ filtervalue);
 				}
 			}
 		break; // End fx mode
 
 		case "cue": // Cue mode
-		// Were only turning off the scrath toggle if any of the 123 buttons are
-		// released, not pushed. This is so we can have any of the 123 buttons
-		// held down, then use the pitch pot to modify the effect settings
+		// because buttons also used together with pitch, we need to map these settings to button release without pitch beeing touched
 			if (!value)
 			{ // Button released.
 				if (HerculesMP3.controls.inputs[control].used)
 				{
-					// Button was used to turn the pitch control into a modifier
-					// for the effect settings, so don't go on and turn the flanger
-					// on/off
+					// if button was used with pitch
 					HerculesMP3.controls.inputs[control].used = false;
 					return;
 				}
@@ -321,29 +367,33 @@ HerculesMP3.buttons123 = function (group, control, value, status) {
 					case "fx 2":
 					case "fx 3":
 						HerculesMP3.scratchMode = !HerculesMP3.scratchMode;
-						if (HerculesMP3.scratchMode) print ("Scratch mode ON");
-						else print ("Scratch mode OFF");
+						if (HerculesMP3.scratchMode)
+							print ("Scratch mode ON");
+							//HerculesMP3.blinkStart(group + " cue mode");
+						else
+							print ("Scratch mode OFF");
+							//HerculesMP3.blinkStop(group + " cue mode");
 						break;
 				}
 			}
-		break; // End fx mode
+		break; // End cue mode
 
 		case "loop": // loop mode
 			switch (HerculesMP3.controls.inputs[control].name)
 			{
 				case "fx 1":
-					if (value)	engine.setValue(group, "loop_in", 1); //button pressed
-					else engine.setValue(group, "loop_in", 0); //button released
+					loop = "loop_in";
 					break;
 				case "fx 2":
-					if (value)	engine.setValue(group, "loop_out", 1); //button pressed
-					else engine.setValue(group, "loop_out", 0); //button released
+					loop = "loop_out";
 					break;
 				case "fx 3":
-					if (value)	engine.setValue(group, "reloop_exit", 1); //button pressed
-					else engine.setValue(group, "reloop_exit", 0); //button released
+					loop = "reloop_exit";
 					break;
 			}
+			if (value) engine.setValue(group, loop, 1); //button pressed
+			else engine.setValue(group, loop, 0); //button released
+			print (loop + "set on " + group );
 		break; //End loop mode
 
 		default:
@@ -351,19 +401,21 @@ HerculesMP3.buttons123 = function (group, control, value, status) {
 	}
 };
 
+// button group mode change function
 HerculesMP3.buttons123mode = function (group, control, value, status) {
+	if (HerculesMP3.debug) print ("[Debug] HerculesMP3.buttons123mode (" + group +", "+ control +", "+value +", "+status +")" );
 
 	group = HerculesMP3.getGroup(control);
-	if (value)
-	{ // Only do stuff when pushed, not released.
+	if (value) // button pressed
+	{
 		currentMode = HerculesMP3.controls.inputs[control].mode;
 		nextMode = currentMode < HerculesMP3.buttons123Modes.length-1 ? currentMode+1 : 0;
 		currentLed = group + " " + HerculesMP3.buttons123Modes[currentMode] + " mode";
 		nextLed = group + " " + HerculesMP3.buttons123Modes[nextMode] + " mode";
-
 		sNextMode = HerculesMP3.buttons123Modes[nextMode];
 
-		switch (sNextMode) {
+		switch (sNextMode)
+		{
 			case "kill":
 			case "fx":
 			case "loop":
@@ -375,11 +427,9 @@ HerculesMP3.buttons123mode = function (group, control, value, status) {
 				break;
 		}
 
-	// Only turn on/off leds for non-zero modes as 0 is kill mode which
-	// has no corresponding LED. i.e. all LEDs off for kill mode.
+	// Only turn on/off leds for non-zero modes as 0 is kill mode which has no corresponding LED. i.e. all LEDs off for kill mode.
 	if (currentMode) HerculesMP3.setLed(currentLed, "off");
-	// Seems that if midi messages are sent too quickly, leds don't behave
-	// as expected. A pause rectifies this.
+	// Seems that if midi messages are sent too quickly, leds don't behave as expected. A pause rectifies this.
 	HerculesMP3.pauseScript(10);
 	if (nextMode) HerculesMP3.setLed(nextLed, "on");
 
@@ -387,7 +437,10 @@ HerculesMP3.buttons123mode = function (group, control, value, status) {
 	}
 };
 
+// pitch function, also the special button + pitch combos
 HerculesMP3.pitch = function (group, control, value, status) {
+	if (HerculesMP3.debug) print ("[Debug] HerculesMP3.pitch (" + group +", "+ control +", "+value +", "+status +")" );
+
 	//  7F > 40: CCW Slow > Fast - 127 > 64
 	//  01 > 3F: CW Slow > Fast - 0 > 63
 
@@ -398,63 +451,57 @@ HerculesMP3.pitch = function (group, control, value, status) {
 	currentMode = HerculesMP3.getControl("inputs", group, "fx select").mode;
 	currentMode = HerculesMP3.buttons123Modes[currentMode];
 
-	// If in fx mode and one or more of buttons 123 are pressed, use pitch
-	// pot to adjust the relevant flanger parameters instead of changing
-	// the rate (as is normal operation for the pitch pot)
-
-
-	// FX mode: buttons + Pitch to modify effect parameters
+	// FX mode: buttons + Pitch: effect parameters
 	if (currentMode == "fx")
 	{
-		potStep = 25; // How many clicks round the pot from min to max values
-
 		if (HerculesMP3.getControl("inputs", group, "fx 1").isDown)
 		{
-			HerculesMP3.increment("[Flanger]", "lfoDepth", value, 0,1,50);
+			HerculesMP3.increment("[Flanger]", "lfoDelay", value, 50,10000,30);
 			HerculesMP3.getControl("inputs", group, "fx 1").used = true;
 			done = true;
 		}
 
 		if (HerculesMP3.getControl("inputs", group, "fx 2").isDown)
 		{
-			HerculesMP3.increment("[Flanger]", "lfoDelay", value, 50,10000,50);
+			HerculesMP3.increment("[Flanger]", "lfoDepth", value, 0,1,30);
 			HerculesMP3.getControl("inputs", group, "fx 2").used = true;
 			done = true;
 		}
 
 		if (HerculesMP3.getControl("inputs", group, "fx 3").isDown)
 		{
-			HerculesMP3.increment("[Flanger]", "lfoPeriod", value, 50000, 2000000,50);
+			HerculesMP3.increment("[Flanger]", "lfoPeriod", value, 50000, 2000000,30);
 			HerculesMP3.getControl("inputs", group, "fx 3").used = true;
 			done = true;
 		}
 	}
 
-	// Cue mode: buttons + Pitch to modify headphone and gain parameters
+	// Cue mode: buttons + Pitch:  headphone and channel gain parameters
 	if (currentMode == "cue")
 	{
 		if (HerculesMP3.getControl("inputs", group, "fx 1").isDown)
 		{
-			HerculesMP3.increment("[Master]", "headMix", value, -1,1,25);
+			HerculesMP3.increment("[Master]", "headMix", value, -1,1,30);
 			HerculesMP3.getControl("inputs", group, "fx 1").used = true;
 			done = true;
 		}
 
 		if (HerculesMP3.getControl("inputs", group, "fx 2").isDown)
 		{
-			HerculesMP3.increment("[Master]", "headVolume", value,0,5,50);
+			HerculesMP3.increment("[Master]", "headVolume", value,0,5,30);
 			HerculesMP3.getControl("inputs", group, "fx 2").used = true;
 			done = true;
 		}
 
 		if (HerculesMP3.getControl("inputs", group, "fx 3").isDown)
 		{
-			HerculesMP3.increment(group, "pregain", value, 0,4,50);
+			HerculesMP3.increment(group, "pregain", value, 0,4,30);
 			HerculesMP3.getControl("inputs", group, "fx 3").used = true;
 			done = true;
 		}
 	}
 
+	// if buttons were used, exit, don't adjust pitch
 	if (done) return;
 	//no button was pressed, do normal pitch
 	else
@@ -463,6 +510,7 @@ HerculesMP3.pitch = function (group, control, value, status) {
 		increment = (value <= 0x3F) ? increment : increment * -1;
 
 		if (HerculesMP3.debug) print ("HerculesMP3.pitch: value=" + value);
+
 		newrate = engine.getValue(group, "rate") + increment;
 		engine.setValue(group, "rate", newrate);
 		print ("newrate:" + newrate);
@@ -473,15 +521,15 @@ HerculesMP3.pitch = function (group, control, value, status) {
 	}
 };
 
+
 HerculesMP3.jog_wheel = function (group, control, value, status) {
+	if (HerculesMP3.debug) print ("[Debug] HerculesMP3.jog_wheel (" + group +", "+ control +", "+value +", "+status +")" );
 	//  7F > 40: CCW Slow > Fast - 127 > 64
 	//  01 > 3F: CW Slow > Fast - 0 > 63
 	group = HerculesMP3.getGroup(control);
 
 	if (HerculesMP3.controls.outputs[HerculesMP3.leds[group + " cue"]].isOn == true)
-	{
 		HerculesMP3.setLed(group + " cue", "off");
-	}
 
 	jogValue = value >=0x40 ? value - 0x80 : value; // -64 to +63, - = CCW, + = CW
 
@@ -500,6 +548,7 @@ HerculesMP3.jog_wheel = function (group, control, value, status) {
 	}
 };
 
+// needed function to scratch only, not to redefine "vinyl feel" :)
 HerculesMP3.wheelDecay = function (value) {
 	currentDate = new Date().getTime();
 
@@ -519,26 +568,18 @@ HerculesMP3.wheelDecay = function (value) {
 			if (jog1 != 0)
 			{
 				if (Math.abs(jog1) > jog1DecayRate)
-				{
 					engine.setValue("[Channel1]","scratch", (jog1 / jog1DecayRate).toFixed(2));
-				}
 				else
-				{
 					engine.setValue("[Channel1]","scratch", 0);
-				}
 			}
 			jog2DecayRate = HerculesMP3.decayRate * (engine.getValue("[Channel2]","play") ? 1 : 5);
 			jog2 = engine.getValue("[Channel2]","scratch");
 			if (jog2 != 0)
 			{
 				if (Math.abs(jog2) > jog2DecayRate)
-				{
 					engine.setValue("[Channel2]","scratch", (jog2 / jog2DecayRate).toFixed(2));
-				}
 				else
-				{
 					engine.setValue("[Channel2]","scratch", 0);
-				}
 			}
 		}
 	}

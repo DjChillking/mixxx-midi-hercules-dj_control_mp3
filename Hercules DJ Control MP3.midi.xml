@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<MixxxMIDIPreset schemaVersion="1" mixxxVersion="1.7.0">
+<MixxxMIDIPreset schemaVersion="1" mixxxVersion="1.8.0">
 	<info>
 		<name>Hercules DJ Console MP3</name>
-		<author>Garth Dahlstrom</author>
+		<author>Peter Molnar (based on Garth Dahlstrom's MK2 mapping)</author>
 		<description>This is a complete mapping for a Hercules DJ Control MP3.</description>
 	</info>
 	<controller id="Hercules DJ Control MP3 MIDI">
@@ -17,6 +17,7 @@
 				<midino>0x31</midino>
 				<options/>
 			</control>
+
 			<control>
 				<group>[Channel1]</group>
 				<key>HerculesMP3.play</key>
@@ -27,137 +28,20 @@
 				</options>
 			</control>
 			<control>
-				<group>[Channel1]</group>
-				<key>HerculesMP3.cue</key>
-				<status>0xB0</status>
-				<midino>0x09</midino>
-				<options>
-					<Script-Binding/>
-				</options>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>back</key>
-				<status>0xB0</status>
-				<midino>0x0B</midino>
-				<options>
-					<Button/>
-				</options>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>fwd</key>
-				<status>0xB0</status>
-				<midino>0x0C</midino>
-				<options>
-					<Button/>
-				</options>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>volume</key>
-				<status>0xB0</status>
-				<midino>0x32</midino>
-				<options/>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>HerculesMP3.pitch</key>
-				<status>0xB0</status>
-				<midino>0x34</midino>
-				<options>
-					<Script-Binding/>
-				</options>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>HerculesMP3.jog_wheel</key>
-				<status>0xB0</status>
-				<midino>0x36</midino>
-				<options>
-					<Script-Binding/>
-				</options>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>filterLow</key>
-				<status>0xB0</status>
-				<midino>0x2E</midino>
-				<options/>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>filterMid</key>
-				<status>0xB0</status>
-				<midino>0x2F</midino>
-				<options/>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>filterHigh</key>
-				<status>0xB0</status>
-				<midino>0x30</midino>
-				<options/>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>HerculesMP3.buttons123</key>
-				<status>0xB0</status>
-				<midino>0x0F</midino>
-				<options>
-					<Script-Binding/>
-				</options>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>HerculesMP3.buttons123</key>
-				<status>0xB0</status>
-				<midino>0x0E</midino>
-				<options>
-					<Script-Binding/>
-				</options>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>HerculesMP3.buttons123</key>
-				<status>0xB0</status>
-				<midino>0x0D</midino>
-				<options>
-					<Script-Binding/>
-				</options>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>rate_temp_up</key>
-				<status>0xB0</status>
-				<midino>0x13</midino>
-				<options>
-					<Button/>
-				</options>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>rate_temp_down</key>
-				<status>0xB0</status>
-				<midino>0x14</midino>
-				<options>
-					<Button/>
-				</options>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>beatsync</key>
-				<status>0xB0</status>
-				<midino>0x0A</midino>
-				<options>
-					<Button/>
-				</options>
-			</control>
-			<control>
 				<group>[Channel2]</group>
 				<key>HerculesMP3.play</key>
 				<status>0xB0</status>
 				<midino>0x02</midino>
+				<options>
+					<Script-Binding/>
+				</options>
+			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>HerculesMP3.cue</key>
+				<status>0xB0</status>
+				<midino>0x09</midino>
 				<options>
 					<Script-Binding/>
 				</options>
@@ -171,11 +55,31 @@
 					<Script-Binding/>
 				</options>
 			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>back</key>
+				<status>0xB0</status>
+				<midino>0x0B</midino>
+				<options>
+					<Button/>
+				</options>
+			</control>
 			<control>
 				<group>[Channel2]</group>
 				<key>back</key>
 				<status>0xB0</status>
 				<midino>0x05</midino>
+				<options>
+					<Button/>
+				</options>
+			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>fwd</key>
+				<status>0xB0</status>
+				<midino>0x0C</midino>
 				<options>
 					<Button/>
 				</options>
@@ -189,14 +93,13 @@
 					<Button/>
 				</options>
 			</control>
+
 			<control>
-				<group>[Channel2]</group>
-				<key>HerculesMP3.buttons123mode</key>
+				<group>[Channel1]</group>
+				<key>volume</key>
 				<status>0xB0</status>
-				<midino>0x01</midino>
-				<options>
-					<Script-Binding/>
-				</options>
+				<midino>0x32</midino>
+				<options/>
 			</control>
 			<control>
 				<group>[Channel2]</group>
@@ -205,11 +108,31 @@
 				<midino>0x033</midino>
 				<options/>
 			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>HerculesMP3.pitch</key>
+				<status>0xB0</status>
+				<midino>0x34</midino>
+				<options>
+					<Script-Binding/>
+				</options>
+			</control>
 			<control>
 				<group>[Channel2]</group>
 				<key>HerculesMP3.pitch</key>
 				<status>0xB0</status>
 				<midino>0x35</midino>
+				<options>
+					<Script-Binding/>
+				</options>
+			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>HerculesMP3.jog_wheel</key>
+				<status>0xB0</status>
+				<midino>0x36</midino>
 				<options>
 					<Script-Binding/>
 				</options>
@@ -223,11 +146,27 @@
 					<Script-Binding/>
 				</options>
 			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>filterLow</key>
+				<status>0xB0</status>
+				<midino>0x2E</midino>
+				<options/>
+			</control>
 			<control>
 				<group>[Channel2]</group>
 				<key>filterLow</key>
 				<status>0xB0</status>
 				<midino>0x2B</midino>
+				<options/>
+			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>filterMid</key>
+				<status>0xB0</status>
+				<midino>0x2F</midino>
 				<options/>
 			</control>
 			<control>
@@ -237,6 +176,14 @@
 				<midino>0x2C</midino>
 				<options/>
 			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>filterHigh</key>
+				<status>0xB0</status>
+				<midino>0x30</midino>
+				<options/>
+			</control>
 			<control>
 				<group>[Channel2]</group>
 				<key>filterHigh</key>
@@ -244,11 +191,50 @@
 				<midino>0x2D</midino>
 				<options/>
 			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>HerculesMP3.buttons123mode</key>
+				<status>0xB0</status>
+				<midino>0x07</midino>
+				<options>
+					<Script-Binding/>
+				</options>
+			</control>
+			<control>
+				<group>[Channel2]</group>
+				<key>HerculesMP3.buttons123mode</key>
+				<status>0xB0</status>
+				<midino>0x01</midino>
+				<options>
+					<Script-Binding/>
+				</options>
+			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>HerculesMP3.buttons123</key>
+				<status>0xB0</status>
+				<midino>0x0F</midino>
+				<options>
+					<Script-Binding/>
+				</options>
+			</control>
 			<control>
 				<group>[Channel2]</group>
 				<key>HerculesMP3.buttons123</key>
 				<status>0xB0</status>
 				<midino>0x10</midino>
+				<options>
+					<Script-Binding/>
+				</options>
+			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>HerculesMP3.buttons123</key>
+				<status>0xB0</status>
+				<midino>0x0E</midino>
 				<options>
 					<Script-Binding/>
 				</options>
@@ -262,6 +248,16 @@
 					<Script-Binding/>
 				</options>
 			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>HerculesMP3.buttons123</key>
+				<status>0xB0</status>
+				<midino>0x0D</midino>
+				<options>
+					<Script-Binding/>
+				</options>
+			</control>
 			<control>
 				<group>[Channel2]</group>
 				<key>HerculesMP3.buttons123</key>
@@ -271,11 +267,31 @@
 					<Script-Binding/>
 				</options>
 			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>rate_temp_up</key>
+				<status>0xB0</status>
+				<midino>0x13</midino>
+				<options>
+					<Button/>
+				</options>
+			</control>
 			<control>
 				<group>[Channel2]</group>
 				<key>rate_temp_up</key>
 				<status>0xB0</status>
 				<midino>0x17</midino>
+				<options>
+					<Button/>
+				</options>
+			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>rate_temp_down</key>
+				<status>0xB0</status>
+				<midino>0x14</midino>
 				<options>
 					<Button/>
 				</options>
@@ -289,6 +305,16 @@
 					<Button/>
 				</options>
 			</control>
+
+			<control>
+				<group>[Channel1]</group>
+				<key>beatsync</key>
+				<status>0xB0</status>
+				<midino>0x0A</midino>
+				<options>
+					<Button/>
+				</options>
+			</control>
 			<control>
 				<group>[Channel2]</group>
 				<key>beatsync</key>
@@ -298,18 +324,10 @@
 					<Button/>
 				</options>
 			</control>
+
 			<control>
 				<group>[Channel1]</group>
-				<key>HerculesMP3.buttons123mode</key>
-				<status>0xB0</status>
-				<midino>0x07</midino>
-				<options>
-					<Script-Binding/>
-				</options>
-			</control>
-			<control>
-				<group>[Channel1]</group>
-				<key>HerculesMP3.bpm</key>
+				<key>HerculesMP3.resetPitch</key>
 				<status>0xB0</status>
 				<midino>0x16</midino>
 				<options>
@@ -318,13 +336,14 @@
 			</control>
 			<control>
 				<group>[Channel2]</group>
-				<key>HerculesMP3.bpm</key>
+				<key>HerculesMP3.resetPitch</key>
 				<status>0xB0</status>
 				<midino>0x1A</midino>
 				<options>
 					<Script-Binding/>
 				</options>
 			</control>
+
 			<control>
 				<group>[Channel1]</group>
 				<key>HerculesMP3.loadSelectedTrack</key>
@@ -343,62 +362,28 @@
 					<Script-Binding/>
 				</options>
 			</control>
+
 			<control>
-				<status>0xb0</status>
-				<midino>0x15</midino>
 				<group>[Channel1]</group>
 				<key>HerculesMP3.pfl</key>
+				<status>0xb0</status>
+				<midino>0x15</midino>
 				<options>
 					<Script-Binding/>
 				</options>
 			 </control>
 				<control>
-					<status>0xb0</status>
-					<midino>0x19</midino>
 					<group>[Channel2]</group>
 					<key>HerculesMP3.pfl</key>
+					<status>0xb0</status>
+					<midino>0x19</midino>
 					<options>
 					 <Script-Binding/>
 				 </options>
 				</control>
-
 		</controls>
 
 		<outputs>
-		  <!--	PLAY		-->
-			<output>
-				<group>[Channel1]</group>
-				<key>play</key>
-				<status>0xB0</status>
-				<midino>0x08</midino>
-				<minimum>0.5</minimum>
-			</output>
-			<output>
-				<group>[Channel2]</group>
-				<key>play</key>
-				<status>0xB0</status>
-				<midino>0x02</midino>
-				<minimum>0.5</minimum>
-			</output>
-
-			<!--	PLAY BLINK	-->
-			<output>
-				<group>[Channel1]</group>
-				<key>playposition</key>
-				<status>0xB0</status>
-				<midino>0x00</midino>
-				<minimum>0.9</minimum>
-				<maximum>0.99</maximum>
-			</output>
-			<output>
-				<group>[Channel2]</group>
-				<key>playposition</key>
-				<status>0xB0</status>
-				<midino>0x05</midino>
-				<minimum>0.9</minimum>
-				<maximum>0.99</maximum>
-			</output>
-
 			<!--	AUTOBEAT	-->
 			<output>
 				<group>[Channel1]</group>
