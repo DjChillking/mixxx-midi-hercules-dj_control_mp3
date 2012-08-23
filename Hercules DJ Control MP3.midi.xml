@@ -381,6 +381,17 @@
 					 <Script-Binding/>
 				 </options>
 				</control>
+
+				<control>
+					<status>0xb0</status>
+					<midino>0x39</midino>
+					<group>[Playlist]</group>
+					<key>HerculesMP3.playlist</key>
+					<options>
+						<script-binding/>
+					</options>
+				</control>
+
 		</controls>
 
 		<outputs>

@@ -584,3 +584,34 @@ HerculesMP3.wheelDecay = function (value) {
 		}
 	}
 };
+
+
+HerculesMP3.playlist = function (group, control, value, status) {
+	if (HerculesMP3.debug) print ("[Debug] HerculesMP3.playlist (" + group +", "+ control +", "+value +", "+status +")" );
+	print ("[Debug] HerculesMP3.playlist (" + group +", "+ control +", "+value +", "+status +")" );
+	//  7F > 40: CCW Slow > Fast - 127 > 64
+	//  01 > 3F: CW Slow > Fast - 0 > 63
+
+	//knobValue = value >=0x40 ? value - 0x80 : value; // -64 to +63, - = CCW, + = CW
+	//if (value >=0x40 )
+	if (value ==127 )
+		engine.setValue("[Playlist]","SelectNextTrack", 1);
+	else if (value ==5 )
+		engine.setValue("[Playlist]","SelectPrevTrack", 1);
+
+	//engine.setValue([Playlist],"scratch", (engine.getValue(group,"scratch") + (jogValue/64)).toFixed(2));
+
+	// do some scratching
+	//if (HerculesMP3.scratchMode)
+	//{
+	//	if (HerculesMP3.debug) print("Do scratching value:" + value + " jogValue: " + jogValue );
+	//	engine.setValue(group,"scratch", (engine.getValue(group,"scratch") + (jogValue/64)).toFixed(2));
+	//}
+	//// do pitch adjustment
+	//else
+	//{
+	//	newValue = jogValue;
+	//	if (HerculesMP3.debug) print("do pitching adjust " + jogValue + " new Value: " + newValue);
+	//	engine.setValue(group,"jog", newValue);
+	//}
+};
